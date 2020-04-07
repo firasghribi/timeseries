@@ -1,0 +1,429 @@
+---
+title: "COVID-19"
+author: "Firas GHRIBI"
+date: "3/31/2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r DATA,echo=FALSE}
+data <- read.table("dataset/tunisia.csv",header=T,sep=";")
+dataw <- read.table("dataset/world.csv",header=T,sep=";")
+View(data)
+View(dataw)
+#str(data)
+data$date <- as.Date(data$date)
+dataw$date <- as.Date(dataw$date)
+```
+
+
+
+```{r data, echo=FALSE}
+# Tunisia's cases representation.
+library(ggplot2)
+min1 <- as.Date("2020-03-03")
+max1 <- max(data$date)
+p <- ggplot(data = data) +
+  geom_bar(mapping = aes(x = date, y = total_cases), stat = "identity") +
+  aes(x=date, y=total_cases,group=1) +
+  geom_line(colour="red", size = 0.9)+
+  scale_x_date(limits = c(min1-1, max1+1),name="Date") +
+  scale_y_continuous(breaks=seq(0,300,10),name="Number of COVID-19 Cases")+
+  ggtitle("Illustration of COVID-19 Cases in Tunisia")
+```
+
+
+```{r roll, echo=FALSE}
+## World's Cases representation.
+min <- as.Date("2019-12-31")
+max <- max(dataw$date)
+pp <- ggplot(data = dataw) +
+  geom_bar(mapping = aes(x = date, y = total_cases), stat = "identity") +
+  aes(x=date, y=total_cases,group=1) +
+  geom_line(colour="red", size = 0.9)+
+  scale_x_date(limits = c(min-1, max+1),name="Date") +
+  scale_y_continuous(breaks=seq(0,1000000,25000),name="Number of COVID-19 Cases")+
+  ggtitle("Illustration of COVID-19 Cases in The world")
+```
+
+
+```{r read,fig.width=15, fig.height=8, echo=FALSE}
+p
+# + geom_smooth(method="loess")
+```
+The above illustration illustrates the increasing number of total cases over time in Tunisia. As you can see, total cases don't seem to stop and they are increasing exponentially over time.
+
+```{r,fig.width=15, fig.height=8,echo=FALSE}
+d <- ggplot(data = data) +
+  aes(x=date, y=total_cases,group=1,fill=T) +
+  geom_line(aes(y = total_cases), color = "darkred") + 
+  geom_line(aes(y = total_deaths), color="steelblue", linetype="twodash") +
+  scale_x_date(limits = c(min1-1, max1+1),name="Date") +
+  scale_y_continuous(breaks=seq(0,300,10),name="Number of COVID-19 Cases")+
+  ggtitle("Illustration of COVID-19 Cases in Tunisia",
+          subtitle = "Based on European Union Statistics last update 30 March 2020")+
+  labs(caption="Source : Ourworldindata.org")+
+  scale_color_manual(values = c("darkred", "steelblue"))+
+  geom_text(aes(x = as.Date("2020-03-30"), y = 290, label = "Total Cases", color = "darkred"))+
+  geom_text(aes(x = as.Date("2020-03-30"), y = 30, label = "Total Deaths", color = "steelblue"))+
+  theme(legend.position="none")
+d
+```
+The above plot shows the total number of cases as well as the total number of death in Tunisia. by 30th of march 2020. the accumulated number of cases was north of 290 and for the dead 9 so far.
+
+```{r rover,fig.width=15, fig.height=8,echo=FALSE}
+pp
+# + geom_smooth(method="loess")
+```
+this graph illustrates the increasing number of total cases over time in the world As you can see, total cases don't seem to stop and they are increasing exponentially over time.
+
+```{r fig.width=15, fig.height=8, echo=FALSE}
+rr <- ggplot(data = dataw) +
+  aes(x=date, y=total_cases,group=1,fill=T) +
+  geom_line(aes(y = total_cases), color = "darkred") + 
+  geom_line(aes(y = total_deaths), color="steelblue", linetype="twodash") +
+  scale_x_date(limits = c(min-1, max+1),name="Date") +
+  scale_y_continuous(breaks=seq(0,1000000,25000),name="Number of COVID-19 Cases")+
+  ggtitle("Illustration of COVID-19 Cases in The world",
+          subtitle = "Based on European Union Statistics last update 30 March 2020")+
+  labs(caption="Source : Ourworldindata.org")+
+  scale_color_manual(values = c("darkred", "steelblue"))+
+  geom_text(aes(x = as.Date("2020-03-27"), y = 750000, label = "Total Cases", color = "darkred"))+
+  geom_text(aes(x = as.Date("2020-03-27"), y = 100000, label = "Total Deaths", color = "steelblue"))+
+  theme(legend.position="none")
+rr
+```
+The above plot shows the total number of cases as well as the total number of death in the world. by 30th of march 2020. the accumulated number of cases was well above 700.000 cases
+```{r,echo=FALSE}
+#print(data)
+#print(dataw)
+```
+
+```{r,echo=FALSE}
+pdata <- read.table("dataset/tunisia/predtunisia.csv",header=T,sep=";")
+View(pdata)
+pdata$date <- as.Date(pdata$date)
+#str(pdata)
+```
+
+```{r,fig.width=15, fig.height=8,echo=FALSE}
+minz <- as.Date("2020-03-03")
+maxz <- max(pdata$date)
+zak <- ggplot(data = pdata) +
+  aes(x=date, y=ptotal_cases,group=1,fill=T) +
+  geom_line(aes(y = ptotal_cases), color = "darkred") + 
+  geom_line(aes(y = ptotal_deaths), color="steelblue", linetype="twodash") +
+  scale_x_date(limits = c(minz-1, maxz+1),name="Date") +
+  scale_y_continuous(breaks=seq(0,400,20),name=" Predicted Number of COVID-19 Cases")+
+  ggtitle("Illustration of Predicted number of COVID-19 Cases in Tunisia",
+          subtitle = "Based on Zakaria Prediction")+
+  labs(caption="Source : Dr Zakaria, Facebook")+
+  scale_color_manual(values = c("darkred", "steelblue"))+
+  #geom_text(aes(x = as.Date("2020-03-27"), y = 750000, label = "Total Cases", color = "darkred"))+
+  #geom_text(aes(x = as.Date("2020-03-27"), y = 100000, label = "Total Deaths", color = "steelblue"))+
+  theme(legend.position="none")
+zak
+```
+As we can see in the above figure, Dr Zakaria (A Tunisian doctor who claims that he figured out the model ( best fit ) that can predict the SARS-Cov-2 Behavior over time), used a simple model (geometric progress) with a reason q = 1.2. he claimed that this is a best fit for the virus progress in Tunisia.
+
+```{r google,warning=FALSE,fig.width=15, fig.height=8,echo=FALSE}
+newdata <-read.table("dataset/tunisia/predictunisia.csv",header=T,sep=";")
+newdata$date <- as.Date(newdata$date)
+#str(newdata)
+minn <- as.Date("2020-03-03")
+maxx <- max(newdata$date)
+dr <- ggplot(data = newdata) +
+  aes(x=date, y=ptotal_cases,group=1,fill=T) +
+  geom_line(aes(y = total_cases), color = "darkred") + 
+  geom_line(aes(y = ptotal_cases), color = "blue4") +
+  geom_line(aes(y = total_deaths), color="darkred",linetype="twodash") +
+  geom_line(aes(y = ptotal_deaths), color="blue4", linetype="twodash") +
+  scale_x_date(limits = c(minn-1, maxx+1),name="Date") +
+  scale_y_continuous(breaks=seq(0,400,20),name=" Predicted Number of COVID-19 Cases")+
+  ggtitle("Illustration of Predicted number of COVID-19 Cases in Tunisia",
+          subtitle = "Based on Zakaria Prediction")+
+  labs(caption="Source : Dr Zakaria, Facebook")+
+  scale_color_manual(values = c("darkred", "steelblue"))+
+  geom_text(aes(x = as.Date("2020-03-30"), y = 290, label = "Total Cases", color = "blue4"))+
+  geom_text(aes(x = as.Date("2020-03-30"), y = 220, label = "Predicted Total Cases", color = "darkred"))+
+  geom_text(aes(x = as.Date("2020-03-30"), y = 140, label = "Predicted Total Deaths", color = "darkred"))+
+  geom_text(aes(x = as.Date("2020-03-30"), y = 15, label = "Total Deaths", color = "blue4"))+
+  theme(legend.position="none")
+dr
+```
+This plot is comparison between real cases and predicted cases ( Dr Zakaria prediction model ). Blue are the prediction, red are the real.HOWEVER, at a certain points the model was well fitted and predicted the cases! you can see that between 10th of march and 21st of march. but then the prediction model underestimated the trend and don't seem to follow the explosive trend.
+
+```{r,warning=FALSE,fig.width=15, fig.height=8,echo=FALSE}
+worlddata <-read.table("dataset/world/pword.csv",header=T,sep=";")
+worlddata$date <- as.Date(worlddata$date)
+#str(newdata)
+minn <- as.Date("2020-03-03")
+maxx <- max(worlddata$date)
+worldwide <- ggplot(data = worlddata) +
+  aes(x=date) +
+  geom_line(aes(y = total_cases), color = "darkred") + 
+  geom_line(aes(y = ptotal_cases), color = "blue4") +
+  #geom_line(aes(y = total_deaths), color="darkred",linetype="twodash") +
+ # geom_line(aes(y = ptotal_deaths), color="blue4", linetype="twodash") +
+ # scale_x_date(limits = c(minn-1, maxx+1),name="Date") +
+ #scale_y_continuous(breaks=seq(0,800000,50000),name=" Predicted Number of COVID-19 Cases")+
+  ggtitle("Illustration of Predicted number of COVID-19 Cases in the world",
+          subtitle = "Based on Zakaria Prediction")+
+  labs(caption="Source : Dr Zakaria, Facebook")+
+  scale_color_manual(values = c("darkred", "steelblue"))+
+  #geom_text(aes(x = as.Date("2020-03-30"), y = 290, label = "Total Cases", color = "blue4"))+
+  #geom_text(aes(x = as.Date("2020-03-30"), y = 220, label = "Predicted Total Cases", color = "darkred"))+
+  #geom_text(aes(x = as.Date("2020-03-30"), y = 140, label = "Predicted Total Deaths", color = "darkred"))+
+  #geom_text(aes(x = as.Date("2020-03-30"), y = 15, label = "Total Deaths", color = "blue4"))+
+  theme(legend.position="none")+
+  scale_y_continuous(labels = scales::comma)+
+  #scale_y_continuous(labels = function(x) format(x, scientific = TRUE))+
+  labs(y="Predicted Number of COVID-19 Cases")
+
+worldwide
+View(worlddata)
+#names(worlddata)<-c("date","location","new_cases","new_deaths","total_cases","total_deaths","ptotal_cases","ptotal_deaths")
+#names(worlddata)
+
+```
+This figure shows that generalizing the prediction model that Dr Zakaria invented seems to overestimate the situation. and certainly, an overfitting of the model do happen and shows an exponential,explosive and sky rocketed way up to the north of the current and real situation ( red line ). over time, in 3 months since the beginning the the COVID-19, the model seem to predict well the cases until 21st of January! and then the model begins to show an explosive trend up toward the sky. fortunately and only by eye we can figure that the model couldn't match the Total real cases over time.
+
+# T Test 
+```{r,echo=FALSE}
+t.test(newdata$ptotal_cases,newdata$total_cases)
+#deathtest <- t.test(newdata$ptotal_deaths,newdata$total_deaths)
+#worldcasestest <- t.test(worlddata$ptotal_cases,worlddata$total_cases)
+#worlddeathtest <- t.test(worlddata$ptotal_deaths,worlddata$total_deaths)
+#print(casestest)
+#print(deathtest)
+#casestest$statistic
+#newdata$total_deaths
+########
+#res=t.test(worlddata$total_cases,worlddata$ptotal_cases)
+#res
+```
+Based on the result, you can say: at 95% confidence level, there is no significant difference (p-value = 0.412) of the two means. Here we should accept the null hypothesis that the two means are equal because the p-value is larger than 0.05. The maximum difference of the mean can be as low as -63.8 and as high as 26.71.
+Thus , Based on T.test and up to now, Dr Zakaria's model is good for the prediction.
+```{r,echo=FALSE}
+t.test(worlddata$ptotal_cases,worlddata$total_cases)
+```
+Based on the result, you can say: at 95% confidence level, there is a significant difference (p-value = 0.0007) of the two means. Here we should not accept (reject ) the null hypothesis that the two means are equal because the p-value is much smaller than 0.05. The maximum difference of the mean can be as low as 10265095 and as high as 37160060.
+Thus , Based on T.test , Dr Zakaria's model is very bad for the prediction of the world total cases.
+
+# TIME SERIES //
+```{r,fig.width=15, fig.height=8,echo=FALSE}
+datacov=read.table("times.csv",,header=T,sep=";")
+datacov=datacov[,-c(1)]
+datacov = as.vector(t(datacov))
+covid=ts(datacov, start = 1, frequency = 1)
+plot(covid, main = 'New Cases', xlab = "Days", ylab= 'Number of Cases' )
+```
+The above plot illustrates a Time Serie for new cases per day IN TUNISIA and not the entire World. However, here we used different dataset. this dataset is updated, LAST UPDATE 04-04-2020. unlike the above illustrations were the dataset were limited to 30th of March. (All datasets are at the end of the document).
+IMPORTANT : Nevertheless, the graph is per days. means day 03-03-2020 is day 1 and 04 April 2020 is Day 27.
+
+
+```{r,echo=FALSE}
+# simple linear regression
+t =time(covid)
+regression_lineaire = lm(covid~t)
+summary(regression_lineaire)
+regression_lineaire.fit = ts(regression_lineaire$fitted.values, frequency = 1, start= 1)
+```
+
+```{r,echo=FALSE}
+#Moving Average
+moving_average =  filter(covid, method = "convolution", sides = 2, filter= array(1/2,dim =2))
+moving_average = ts(moving_average, start = 1, frequency = 1)
+
+```
+
+```{r,echo=FALSE}
+#Local Polynomial regression
+t = 1:length(covid)
+t = (t-min(t))/max(t)
+
+local_regression = loess(covid~t)
+summary(local_regression)
+local_regression.fit = ts(local_regression$fitted, start = 1, frequency = 1)
+
+```
+
+```{r,echo=FALSE}
+# Spline
+library(mgcv)
+gam.spl= gam(covid ~ s(t))
+gam.spl.fit = ts(gam.spl$fitted.values, start = 1, frequency = 1)
+summary(gam.spl)
+```
+
+```{r,echo=FALSE}
+#Polynomial regression
+t = time(covid)
+t = (t- min(t))/(max(t)- min(t))
+s = t^2 
+regression_polynomiale = lm(covid~t+s)
+summary(regression_polynomiale)
+regression_polynomiale.fit = ts(regression_polynomiale$fitted.values, start = 1, frequency = 1)
+```
+
+```{r,warning=FALSE,fig.width=15, fig.height=8,echo=FALSE}
+# Representation of all models.
+toutes_les_valeurs = c(moving_average, local_regression.fit, regression_lineaire.fit, regression_polynomiale.fit)
+mvav = array(data = "Moving Average", dim = length(moving_average) ) 
+locreg = array(data = "Regression Locale", dim = length(local_regression.fit) )
+linearreg = array(data ="Regression Linéaire", dim = length(regression_lineaire.fit))
+polyreg = array(data ="Regression polynomiale", dim = length(regression_polynomiale.fit))
+
+labels = c(mvav, locreg, linearreg, polyreg)
+tableau = data.frame(time = rep(time(covid),4),toutes_les_valeurs, labels)
+library(ggplot2)
+ggplot(data = tableau) + 
+  aes(x= time, y = toutes_les_valeurs, col = labels) + 
+  geom_line(size =1.5) + xlab('Jours') + ggtitle("New Cases")+
+  ylab("Number of Cases") + theme_linedraw()
+```
+Based on the the the R Square ( R Square is used to see whether or not the model is robust, also used to compare between different model R Square = 1 Robust , R Square = 0 Bad usually we accept the model were his R square is close to one or the higher one between two or more.) Polynomial Regression Adjusted R 0.641 > Spline Adjusted R 0.601 > Simple linear regression Adjusted R 0.570. so Polynomial Regression is the best model that fits! yet, LOESS is greater. so these both can be used to express the trend of the data .
+```{r,echo=FALSE}
+# reinitialisation of the time serie covid to frequency =7 ( to days) in order to recognize it as days.
+covid=ts(covid, start = 1, frequency = 7)
+```
+
+```{r,warning=FALSE,fig.width=15, fig.height=8,echo=FALSE}
+library(TSA)
+days.= season(covid)  
+
+#First method of seasonality detection : ANOVA
+
+model = lm(covid~days.-1)
+summary(model)
+plot(model$fitted.values,type ="line")
+model2 = lm(covid~days.-1)
+```
+The ANOVA Test and fitted value plot shows a seasonality estimation per week and days of cases! HOWEVER ! there is no evidence that there is a seasonality of the coronavirus per week. Coronavirus SARS-COV-2 is new to the world, we lack of seasonal observations in Tunisia, Dataset is limited, we cannot talk about a seasonality per week for a virus. our estimation dosen't make a sens. we need more data ; cyclical or seasonal ;. more to follow.
+```{r,echo=FALSE}
+# Second method : Sin Cos ( harmonic )
+har = harmonic(covid,1)
+model3 = lm(covid~har)
+summary(model3)
+har2 = harmonic(covid,2)
+model4 = lm(covid~har2)
+summary(model4)
+
+```
+
+```{r,fig.width=15, fig.height=8,echo=FALSE}
+# Comparison between the two method ANOVA vs Sin Cos
+st1 = coef(model2)
+st2 = fitted(model3)
+st2=fitted(model4)[1:7]
+plot(1:7, st1, lwd =2 , col = 'blue', ylab = 'seasonality', xlab = 'days', type= 'l')
+lines(1:7, st2, lwd=2, col = 'red')
+```
+The ANOVA and Harmonic Test shows a seasonality estimation per week and days of cases! HOWEVER ! there is no evidence that there is a seasonality of the coronavirus per week. Coronavirus SARS-COV-2 is new to the world, we lack of seasonal observations in Tunisia, Dataset is limited, we cannot talk about a seasonality per week for a virus. our estimation dosen't make a sens. we need more data ; cyclical or seasonal ;. more to follow.
+```{r,warning=FALSE,echo=FALSE}
+lm.fit= lm(covid~ t +s+ har)
+summary(lm.fit)
+residuals = ts(covid- fitted(lm.fit), start = 1, frequency = 1)
+library(tseries)
+kpss.test(residuals)
+```
+According to the KPSS TEST , p-value is 0.1 > 0.05 so our serie is stationary. ( we cannot reject H0 : the serie is stationary)
+```{r,fig.width=15, fig.height=8,echo=FALSE}
+hist(residuals)
+```
+
+```{r,fig.width=15, fig.height=8,echo=FALSE}
+qqnorm(residuals)
+qqline(residuals)
+```
+QQ norm and QQline plot shows if the residuals are normally distributed (follow the normal distribution) or not! its clearly that residuals are not follwing a normal distribution.
+```{r,warning=FALSE,echo=FALSE}
+shapiro.test(residuals) 
+```
+According to the Shapiro-Wilk normality test p-value < 0.05, the hypothesis of the data is normally distributed is rejected! so our data is not normally distributed.
+```{r,fig.width=15, fig.height=8,echo=FALSE}
+plot(residuals, main = 'residual process')
+```
+
+
+```{r,fig.width=15, fig.height=8,echo=FALSE}
+acf(residuals)
+```
+
+```{r,fig.width=15, fig.height=8,echo=FALSE}
+#2eme methode non parametric estimation 
+gam.trs.fit = gam(covid ~ s(t)+har)
+diff.gam = ts(covid - fitted(gam.trs.fit), start = 1, frequency = 1)
+plot(diff.gam, col ="red")
+```
+
+```{r,fig.width=15, fig.height=8,echo=FALSE}
+acf(diff.gam)
+```
+
+```{r,fig.width=15, fig.height=8,echo=FALSE,warning=FALSE}
+kpss.test(diff.gam)
+```
+as for the parametric , KPSS test shows p-value = 0.1 > 0.05 , so our serie is stationary. ( we cannot reject H0 : the serie is stationary)
+```{r,fig.width=15, fig.height=8,echo=FALSE}
+covid_notrend = diff(covid, lag = 2)
+plot(covid_notrend)
+```
+
+```{r,fig.width=15, fig.height=8,echo=FALSE}
+covid_notrendnosais = diff(covid, lag=11)
+plot(covid_notrendnosais)
+```
+
+```{r,warning=FALSE,echo=FALSE}
+kpss.test(covid_notrendnosais)
+```
+Even with different lags , KPSS p-value > 0.05 ,so our serie's residuals are stationary. ( we cannot reject H0 : the serie is stationary)
+
+```{r,fig.width=15, fig.height=8,echo=FALSE}
+acf(covid_notrendnosais)
+```
+
+```{r,fig.width=15, fig.height=8,echo=FALSE}
+pacf(covid_notrendnosais)
+```
+
+# Conclusion :
+
+ Covid-19 is novel virus and there is a shortage of data.Yes,we can plot different figures.From the number of accumulated deaths to total cases! from Tunisia to the United States to a more general insight, the whole world. we can figure out the best model that fits our data right now! However, coming to some areas where more data is needed, we find some obstacles and difficulties knowing much about the virus. its seasonality, its trend, how it behaves over time? is it cyclical? would the exponential trend stop? is it seasonal or constant ? to many question comes to our mind! the world is also waiting and there is no perfect model! no perfect understanding of it! as a matter of fact, we must wait and collect more data! overtime, we will have enough information that will guide our interpretations and models to more robust and certain ones.
+
+# EXTRA : DATA USED FOR THE REPORT
+### REAL TUNISIA // DATA
+
+```{r,echo=FALSE}
+print(data)
+```
+
+### REAL WORLD // DATA
+```{r,echo=FALSE}
+print(dataw)
+```
+
+### DR ZAKARIA TUNISIA PREDICTED // DATA
+
+```{r,echo=FALSE}
+print(newdata)
+```
+### DR ZAKARIA WORLD PREDICTED // DATA
+```{r,echo=FALSE}
+print(worlddata)
+```
+### TIME SERIE TUNISIA ( UPDATED )// DATA
+```{r,echo=FALSE}
+datacov2=read.table("times.csv",,header=T,sep=";")
+print(datacov2)
+```
+
+
+
